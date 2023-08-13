@@ -5,6 +5,9 @@ try {
   // `who-to-greet` input defined in action metadata file
   const nameToGreet = core.getInput('who-to-greet');
   const action = core.getInput('action');
+
+  const { context } = github;
+
   console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
   console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);
 
@@ -14,6 +17,7 @@ try {
 
   if (action === 'update-change-log') {
     console.log('Updating the change log');
+    console.log('...', context);
   }
 
   const time = new Date().toTimeString();

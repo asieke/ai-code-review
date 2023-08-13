@@ -11,6 +11,11 @@ try {
   if (action === 'update-push') {
     console.log('Were going to trick out this push');
   }
+
+  if (action === 'update-change-log') {
+    console.log('Updating the change log');
+  }
+
   const time = new Date().toTimeString();
   core.setOutput('time', time);
   // Get the JSON webhook payload for the event that triggered the workflow

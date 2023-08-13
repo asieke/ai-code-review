@@ -23,10 +23,14 @@ async function main() {
       const { owner, repo, number } = context.issue;
 
       console.log(owner, repo, number);
-      const data = 'hello there';
+      const data = await octokit.pulls.get({
+        owner,
+        repo,
+        pull_number,
+      });
 
       console.log('---------------------------------------');
-      console.log(octokit);
+      console.log(data);
       console.log('---------------------------------------');
     }
 

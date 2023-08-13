@@ -41,21 +41,21 @@ async function main() {
         'https://patch-diff.githubusercontent.com/raw/asieke/portfolio-labs/pull/2.diff'
       );
 
-      const chatCompletion = await openai.createChatCompletion({
-        model: 'gpt-3.5-turbo-16k',
-        messages: [
-          {
-            role: 'user',
-            content:
-              'Please create a changelog entry for the following changes in markdown. In your response, feel free to include emojies.' +
-              minimizeDiff(diff),
-          },
-        ],
-      });
+      // const chatCompletion = await openai.createChatCompletion({
+      //   model: 'gpt-3.5-turbo-16k',
+      //   messages: [
+      //     {
+      //       role: 'user',
+      //       content:
+      //         'Please create a changelog entry for the following changes in markdown. In your response, feel free to include emojies.' +
+      //         minimizeDiff(diff),
+      //     },
+      //   ],
+      // });
 
       console.log('---------------------------------------');
-      console.log(diff);
-      console.log(chatCompletion.data.choices[0].message);
+      console.log(data);
+      // console.log(chatCompletion.data.choices[0].message);
       console.log('---------------------------------------');
     }
 

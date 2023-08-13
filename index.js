@@ -1,6 +1,6 @@
-import core from '@actions/core';
-import github from '@actions/github';
-import { Octokit } from '@octokit/rest';
+const core = require('@actions/core');
+const github = require('@actions/github');
+const { Octokit } = require('@octokit/rest');
 import fetch from 'node-fetch';
 
 try {

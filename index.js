@@ -23,14 +23,17 @@ async function main() {
       const { owner, repo, number } = context.issue;
 
       console.log(owner, repo, number);
-      const data = await octokit.rest.pulls.get({
+      const { data } = await octokit.rest.pulls.get({
         owner,
         repo,
         pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
+      //fetch the diff from the pull request
+      const res = await fetch(data.diff_url);
+
       console.log('---------------------------------------');
-      console.log(data);
+      console.log(res.data);
       console.log('---------------------------------------');
     }
 

@@ -30,8 +30,10 @@ async function main() {
         pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
+      const diff = await fetch(data.diff_url);
+
       console.log('---------------------------------------');
-      console.log(data);
+      console.log(diff);
       console.log('---------------------------------------');
     }
 

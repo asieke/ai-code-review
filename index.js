@@ -10,7 +10,6 @@ try {
 
   if (action === 'update-push') {
     console.log('Were going to trick out this push');
-    console.log('its going to be great');
   }
   const time = new Date().toTimeString();
   core.setOutput('time', time);

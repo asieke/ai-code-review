@@ -1,6 +1,6 @@
 import core from '@actions/core';
 import github from '@actions/github';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 async function main() {
   try {
@@ -30,7 +30,7 @@ async function main() {
         pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
-      const diff = await fetch(data.diff_url);
+      const { data: diff } = await axios.get(data.diff_url);
 
       console.log('---------------------------------------');
       console.log(diff);

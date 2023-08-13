@@ -1,6 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const octokit = require('@octokit/rest');
+const octokit = require('@octokit/rest')();
 
 async function main() {
   try {

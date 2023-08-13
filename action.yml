@@ -5,6 +5,10 @@ inputs:
     description: 'Who to greet'
     required: true
     default: 'World'
+  action: #name of action
+    description: 'Action to perform'
+    required: true
+    default: 'update-change-log'
 outputs:
   time: # id of output
     description: 'The time we greeted you'

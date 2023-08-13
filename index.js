@@ -4,8 +4,6 @@ const { Octokit } = require('@octokit/rest');
 
 async function main() {
   try {
-    const fetch = await import('node-fetch'); // Use dynamic import
-
     // `who-to-greet` input defined in action metadata file
     const nameToGreet = core.getInput('who-to-greet');
     const action = core.getInput('action');
@@ -25,16 +23,8 @@ async function main() {
     if (action === 'update-change-log') {
       console.log('Updating the change log');
       const { owner, repo, number } = context.issue;
-      octokit.pulls
-        .get({
-          owner,
-          repo,
-          pull_number: number,
-        })
-        .then((res) => {
-          console.log('Flattened diff:', res.data.diff_url);
-        });
-      console.log('...', context);
+
+      console.log(owner, repo, number);
     }
 
     const time = new Date().toTimeString();

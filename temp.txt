@@ -1,0 +1,493 @@
+diff --git a/src/components/brand/Logo.svelte b/src/components/brand/Logo.svelte
+index 6ca89e8..ff25d4f 100644
+--- a/src/components/brand/Logo.svelte
++++ b/src/components/brand/Logo.svelte
+@@ -3,4 +3,5 @@
+ 	export { tempClass as class };
+ </script>
+
+-<img class={tempClass} src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" />
++<!-- <img class={tempClass} src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company" /> -->
++<img class={tempClass} src="/images/logo.png" alt="Your Company" />
+diff --git a/src/components/layout/Chat.svelte b/src/components/layout/Chat.svelte
+index 6a65b8e..e6b4c1a 100644
+--- a/src/components/layout/Chat.svelte
++++ b/src/components/layout/Chat.svelte
+@@ -10,6 +10,7 @@
+ 	let conversation: { role: string; content: string }[] = [];
+ 	let message = '';
+ 	let chatContainer: HTMLDivElement;
++	let messageContainer: HTMLTextAreaElement;
+
+ 	const submitMessage = async () => {
+ 		const messages = [{ role: 'system', content: systemPrompt + '\nContext for this request: ' + $context }, ...conversation];
+@@ -58,12 +59,23 @@
+ 			// Allow the DOM to update before scrolling
+ 		}
+ 	};
++
++	const toggleChat = () => {
++		open = !open;
++		tick().then(() => {
++			chatContainer.scrollTop = chatContainer.scrollHeight;
++		});
++		if (open) {
++			//focus on the textarea
++			messageContainer.focus();
++		}
++	};
+ </script>
+
+ <div class="fixed right-0 h-[400px] w-1/3 shadow-xl transition-all duration-300 ease-in-out" style="bottom: {open ? '0px' : '-350px'}">
+ 	<div class="flex h-[50px] w-full items-center justify-between rounded-t-md bg-primary-600 px-4 font-semibold text-white">
+ 		<span>Chat with Clara</span>
+-		<button on:click={() => (open = !open)}>{open ? '✖' : '▲'}</button>
++		<button on:click={toggleChat}>{open ? '✖' : '▲'}</button>
+ 	</div>
+ 	<div class="h-[350px] w-full bg-slate-100 dark:bg-slate-900">
+ 		<div bind:this={chatContainer} class="h-[290px] w-full overflow-y-auto p-4">
+@@ -74,7 +86,7 @@
+ 			{/each}
+ 		</div>
+ 		<div class="flex h-[60px] w-full items-center bg-slate-200 px-4 dark:bg-slate-700">
+-			<textarea bind:value={message} on:keydown={handleKeyDown} />
++			<textarea bind:this={messageContainer} bind:value={message} on:keydown={handleKeyDown} />
+ 		</div>
+ 	</div>
+ </div>
+@@ -82,6 +94,7 @@
+ <style lang="postcss">
+ 	textarea {
+ 		@apply h-[40px] w-full resize-none border-[1px] border-slate-300 bg-slate-50 text-sm text-slate-600 dark:bg-slate-950 dark:text-slate-300;
++		@apply px-2 py-1;
+ 	}
+
+ 	.bubble {
+diff --git a/src/components/layout/Nav.svelte b/src/components/layout/Nav.svelte
+index 481cb38..ee9afb1 100644
+--- a/src/components/layout/Nav.svelte
++++ b/src/components/layout/Nav.svelte
+@@ -3,7 +3,7 @@
+ </script>
+
+ <nav class="h-full bg-slate-100 dark:bg-dark-950">
+-	<div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
++	<div class="mx-auto max-w-6xl sm:px-6 lg:px-8">
+ 		<div class="flex h-16 items-center justify-between px-4 sm:px-0">
+ 			<div class="flex items-center">
+ 				<Links />
+diff --git a/src/lib/data/aiPrompts.ts b/src/lib/data/aiPrompts.ts
+index ac0085b..a6b45a8 100644
+--- a/src/lib/data/aiPrompts.ts
++++ b/src/lib/data/aiPrompts.ts
+@@ -6,4 +6,7 @@ export const systemPrompt = `
+   All of your responses are in text and do not require any formatiting
+   Try your best to be as concise as possible.
+   Where possible limit responses to under 100 words.
++  The data relevant to the page is always provided in the system prompt.
++  If you are continuing a conversation, please use the data in the conversation, but if
++  the user asks for specifics, please make sure you are using the data provided in the system prompt.
+   `;
+diff --git a/src/models/ai-process/positions.ts b/src/models/ai-process/positions.ts
+new file mode 100644
+index 0000000..0235561
+--- /dev/null
++++ b/src/models/ai-process/positions.ts
+@@ -0,0 +1,9 @@
++import { addAIContext } from '$lib/stores/ai';
++import type { Position } from '$types/positions';
++
++export const dataToContext = (data: Position[]) => {
++	let string = 'Symbol\tName\tMarket Value\tCost Basis\tMarket Value (7 days ago)\n';
++	string += data.map((p) => [p.symbol, p.name, p.market_value, p.cost_basis, p.market_value_7d].join('\t')).join('\n');
++
++	addAIContext(string);
++};
+diff --git a/src/routes/(app)/positions/+page.svelte b/src/routes/(app)/positions/+page.svelte
+index 90a1333..6881f1e 100644
+--- a/src/routes/(app)/positions/+page.svelte
++++ b/src/routes/(app)/positions/+page.svelte
+@@ -5,6 +5,8 @@
+ 	import type { Asset } from '$types/assets';
+ 	import type { Position } from '$types/positions';
+
++	import { dataToContext } from '$models/ai-process/positions';
++
+ 	export let data;
+
+ 	const { portfolios, positions, assets } = data;
+@@ -15,6 +17,7 @@
+ 	let position: Position | null = null;
+
+ 	$: displayPositions = positions?.filter((position) => position.portfolio_id === portfolio_id);
++	$: dataToContext(displayPositions);
+
+ 	const onClick = (s: string | null) => {
+ 		asset = assets?.find((a) => a.symbol === s) || null;
+diff --git a/src/routes/(setup)/signup/+page.svelte b/src/routes/(setup)/signup/+page.svelte
+index cf5228a..a0e2de4 100644
+--- a/src/routes/(setup)/signup/+page.svelte
++++ b/src/routes/(setup)/signup/+page.svelte
+@@ -24,7 +24,7 @@
+ 		<div class="ml-8 mr-8 h-full border-l-[1px] border-r-[1px] border-dashed border-slate-500 border-opacity-10 py-8 md:ml-0 md:py-16">
+ 			<div class="block md:hidden">
+ 				<div class="pb-4">
+-					<div class="flex flex-row space-x-1 text-xl font-bold leading-8 tracking-tighter"><Logo class="h-6 w-6 pt-2" /><span>Portfolio Labs</span></div>
++					<div class="flex flex-row space-x-1.5 text-xl font-bold tracking-tight"><Logo class="h-6 w-6" /><span>Portfolio Labs</span></div>
+ 				</div>
+ 			</div>
+ 			<div class="-ml-[3px] min-h-[400px] rounded-md bg-white p-8 shadow-2xl dark:bg-slate-800 md:p-12 md:px-16" style="width: calc(100% + 6px)">
+diff --git a/src/routes/(setup)/signup/archive.svelte b/src/routes/(setup)/signup/archive.svelte
+deleted file mode 100644
+index fd2f585..0000000
+--- a/src/routes/(setup)/signup/archive.svelte
++++ /dev/null
+@@ -1,111 +0,0 @@
+-<script lang="ts">
+-	import { PUBLIC_APP_URL } from '$env/static/public';
+-
+-	import { Logo } from '$components/brand';
+-	import { Container } from '$components/layout';
+-	import { page } from '$app/stores';
+-
+-	const { supabase } = $page.data;
+-
+-	let email = 'asieke@gmail.com';
+-	let state: 'initial' | 'loading' | 'success' = 'initial';
+-	let errorText = '';
+-	let timer = 10;
+-
+-	const handleSubmit = async () => {
+-		state = 'loading';
+-		const redirectURL = PUBLIC_APP_URL + '/auth/redirect';
+-
+-		if (email.length < 6) {
+-			errorText = 'Please enter a valid email address';
+-			state = 'initial';
+-			return;
+-		}
+-
+-		const { data, error } = await supabase.auth.signInWithOtp({
+-			email: email,
+-			options: {
+-				emailRedirectTo: redirectURL
+-			}
+-		});
+-		if (error || !data) {
+-			errorText = error?.message || 'An error occurred';
+-			state = 'initial';
+-		} else {
+-			state = 'success';
+-			//increment timer variable down 1 every second, when it hits 0 set state to initial
+-			const interval = setInterval(() => {
+-				timer--;
+-				if (timer === 0) {
+-					clearInterval(interval);
+-					state = 'initial';
+-				}
+-			}, 1000);
+-			errorText = '';
+-		}
+-	};
+-</script>
+-
+-<div class="min-h-screen min-w-full bg-slate-800 pt-20">
+-	<Container layout="tight">
+-		<div class="w-[50vw] md:w-[400px]">
+-			<div class="flex w-full flex-col items-center justify-center">
+-				<Logo class="mb-3 h-8 w-8" />
+-				<h3 class="text-center font-semibold text-slate-700 dark:text-slate-300">Sign in to your account</h3>
+-			</div>
+-
+-			{#if state === 'initial' || state === 'loading'}
+-				<form>
+-					<div class="mt-5">
+-						<label for="email" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100"
+-							>Email address
+-							<span class="text-red-700">{errorText}</span>
+-						</label>
+-						<div class="mt-2">
+-							<input
+-								bind:value={email}
+-								id="email"
+-								name="email"
+-								type="email"
+-								autocomplete="off"
+-								required
+-								class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+-							/>
+-						</div>
+-					</div>
+-				</form>
+-			{:else if state === 'success'}
+-				<div class="mt-5 w-full space-y-4 text-center text-slate-700 dark:text-slate-300">
+-					<p>You will receive an email with your login information at</p>
+-					<p class="font-semibold">{email}</p>
+-					<p class="">Didn't receive an email? Try again in {timer} seconds</p>
+-				</div>
+-			{/if}
+-
+-			{#if state === 'initial'}
+-				<button class="submit mt-6 w-full" on:click={handleSubmit}>Sign In</button>
+-				<p class="mt-10 text-center text-sm text-gray-500">
+-					Not a member?
+-					<a href="/" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Start a 14 day free trial</a>
+-				</p>
+-			{:else if state === 'loading'}
+-				<button class="disabled mt-6 w-full" on:click={handleSubmit}>Sign In</button>
+-			{/if}
+-		</div>
+-	</Container>
+-</div>
+-
+-<style lang="postcss">
+-	button.submit {
+-		@apply rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+-	}
+-
+-	button.disabled {
+-		@apply cursor-not-allowed rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm;
+-	}
+-
+-	input {
+-		@apply block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6;
+-		@apply text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600 dark:bg-slate-800 dark:text-gray-100 dark:ring-gray-700;
+-	}
+-</style>
+diff --git a/src/styles/app_archive.css b/src/styles/app_archive.css
+deleted file mode 100644
+index 0fcdedd..0000000
+--- a/src/styles/app_archive.css
++++ /dev/null
+@@ -1,179 +0,0 @@
+-html,
+-body {
+-	@apply h-full text-slate-700 dark:text-slate-300;
+-	font-family: 'Source Sans 3', sans-serif;
+-}
+-
+-/* Header styles */
+-h1 {
+-	@apply my-4 text-4xl font-bold;
+-}
+-
+-h2 {
+-	@apply my-3 text-3xl font-semibold;
+-}
+-
+-h3 {
+-	@apply my-2  text-2xl font-semibold;
+-}
+-
+-h4 {
+-	@apply my-2 text-xl font-semibold;
+-}
+-
+-h4,
+-h5,
+-h6 {
+-	@apply my-1;
+-}
+-
+-/* Text elements */
+-p {
+-	@apply my-2 text-base leading-6;
+-}
+-
+-span {
+-}
+-
+-/* Table styles */
+-table {
+-	@apply my-4 w-full border-collapse;
+-}
+-
+-th,
+-td {
+-	@apply px-4 py-2;
+-}
+-
+-th {
+-	@apply font-semibold;
+-}
+-
+-/* Form Styles */
+-form input[type='number'],
+-form input[type='text'],
+-form input[type='email'] {
+-	@apply block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm sm:leading-6;
+-	@apply text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600 dark:bg-slate-800 dark:text-gray-100 dark:ring-gray-700;
+-}
+-
+-select,
+-form input[type='date'] {
+-	@apply block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6;
+-	@apply dark:bg-slate-800 dark:text-gray-100 dark:ring-gray-700;
+-}
+-
+-form input[type='radio'],
+-form input[type='checkbox'] {
+-	@apply h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600;
+-	@apply dark:border-gray-600 dark:bg-slate-800;
+-}
+-
+-form legend {
+-	@apply text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100;
+-}
+-
+-form h2 {
+-	@apply text-base font-semibold leading-7 text-gray-900 dark:text-gray-100;
+-}
+-
+-form p {
+-	@apply mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400;
+-}
+-
+-form label {
+-	@apply block text-sm font-medium leading-6 text-gray-900 dark:text-gray-100;
+-}
+-
+-.cancel {
+-	@apply text-sm font-semibold leading-6 text-gray-900 dark:text-gray-100;
+-}
+-
+-.submit {
+-	@apply flex flex-row items-center justify-center gap-x-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600;
+-}
+-
+-.disabled {
+-	@apply flex cursor-not-allowed flex-row items-center justify-center gap-x-2 rounded-md bg-gray-300 px-3 py-2 text-sm font-semibold text-gray-600 shadow-sm;
+-}
+-
+-/* Statuses */
+-
+-/* TOS */
+-
+-.tos {
+-	@apply m-0 p-0;
+-}
+-
+-.tos h1 {
+-	@apply mx-0 my-0 mb-2 p-0 text-base font-bold;
+-}
+-
+-.tos h2 {
+-	@apply mx-0 my-1 p-0 text-sm font-semibold;
+-}
+-
+-.tos p {
+-	@apply m-0 p-0 text-xs;
+-}
+-
+-/* Colors */
+-
+-.negative {
+-	@apply text-red-500 dark:text-red-400;
+-}
+-
+-.positive {
+-	@apply text-green-500 dark:text-green-400;
+-}
+-
+-.success {
+-	@apply bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100;
+-}
+-
+-.warning {
+-	@apply bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100;
+-}
+-
+-/* Data Table */
+-
+-.data-table {
+-	@apply rounded-lg border-[1px] border-slate-200 p-2 shadow-md dark:border-slate-600;
+-}
+-
+-.data-table table {
+-	@apply m-0 w-full text-slate-500 dark:text-slate-300;
+-}
+-
+-.data-table th:first-child {
+-	@apply rounded-tl-md;
+-}
+-
+-.data-table th:last-child {
+-	@apply rounded-tr-md;
+-}
+-
+-.data-table tr:last-child td:first-child {
+-	@apply rounded-bl-md;
+-}
+-
+-.data-table tr:last-child td:last-child {
+-	@apply rounded-br-md;
+-}
+-
+-td,
+-th {
+-	@apply px-2 py-3;
+-}
+-
+-th {
+-	@apply bg-primary-500 text-left text-white dark:bg-primary-800;
+-}
+-
+-tr:not(:last-child) {
+-	@apply border-b-[1px] border-slate-200;
+-}
+-
+-tr:last-child td {
+-	@apply border-b-0;
+-}
+diff --git a/src/styles/base_archive.css b/src/styles/base_archive.css
+deleted file mode 100644
+index e3ff998..0000000
+--- a/src/styles/base_archive.css
++++ /dev/null
+@@ -1,9 +0,0 @@
+-@tailwind base;
+-@tailwind components;
+-@tailwind utilities;
+-
+-html,
+-body {
+-	@apply h-full text-slate-700 dark:text-slate-300;
+-	font-family: 'Source Sans 3', sans-serif;
+-}
+diff --git a/src/styles/setup_archive.css b/src/styles/setup_archive.css
+deleted file mode 100644
+index 32d7e62..0000000
+--- a/src/styles/setup_archive.css
++++ /dev/null
+@@ -1,27 +0,0 @@
+-label {
+-	@apply mb-1 block text-sm font-normal leading-6 text-slate-600 dark:text-gray-100;
+-}
+-
+-input[type='email'],
+-input[type='text'],
+-input[type='date'],
+-input[type='tel'],
+-select {
+-	@apply block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-300 focus:ring-inset focus:ring-primary-500 sm:text-sm sm:leading-6;
+-}
+-
+-button.submit {
+-	@apply w-full rounded-md bg-primary-400 px-4 py-2 text-sm text-white shadow-sm hover:bg-primary-500;
+-}
+-
+-button.breadcrumb {
+-	@apply text-sm text-slate-500;
+-}
+-
+-a {
+-	@apply text-primary-400 hover:text-primary-500;
+-}
+-
+-.error {
+-	@apply ml-1 text-red-500;
+-}
+diff --git a/static/images/logo.png b/static/images/logo.png
+new file mode 100644
+index 0000000..ba27fa8
+Binary files /dev/null and b/static/images/logo.png differ

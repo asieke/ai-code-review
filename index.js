@@ -3,15 +3,13 @@ const github = require('@actions/github');
 
 async function main() {
   try {
-    const { GITHUB_TOKEN } = process.env;
+    const { GITHUB_TOKEN, OPENAI_API_KEY } = process.env;
     // `who-to-greet` input defined in action metadata file
     const nameToGreet = core.getInput('who-to-greet');
     const action = core.getInput('action');
     const { context } = github;
 
-    // const octokit = github.getOctokit(GITHUB_TOKEN);
-
-    console.log('process.env', process.env);
+    const octokit = github.getOctokit(GITHUB_TOKEN);
 
     console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
     console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);
@@ -21,14 +19,14 @@ async function main() {
     }
 
     if (action === 'update-change-log') {
-      console.log('Updating the change log');
+      console.log('Updating the change log, (OPEN AI KEY: ' + OPENAI_API_KEY + ')');
       const { owner, repo, number } = context.issue;
 
       console.log(owner, repo, number);
       const data = 'hello there';
 
       console.log('---------------------------------------');
-      console.log(data);
+      console.log(octokit);
       console.log('---------------------------------------');
     }
 

@@ -11,7 +11,7 @@ async function main() {
 
     // const octokit = github.getOctokit(GITHUB_TOKEN);
 
-    console.log('process.env.GITHUB_TOKEN', process.env.GITHUB_TOKEN);
+    console.log('process.env', process.env);
 
     console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
     console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);

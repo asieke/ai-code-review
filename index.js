@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
+const fetch = require('node-fetch');
 
 async function main() {
   try {
@@ -29,11 +30,8 @@ async function main() {
         pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
-      //fetch the diff from the pull request
-      const res = await fetch(data.diff_url);
-
       console.log('---------------------------------------');
-      console.log(res.data);
+      console.log(data);
       console.log('---------------------------------------');
     }
 

@@ -26,7 +26,7 @@ async function main() {
       const data = await octokit.pulls.get({
         owner,
         repo,
-        pull_number,
+        pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
       console.log('---------------------------------------');

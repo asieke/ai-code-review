@@ -1,13 +1,16 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { Octokit } = require('@octokit/rest');
+const fetch = require('node-fetch');
 
 try {
   // `who-to-greet` input defined in action metadata file
   const nameToGreet = core.getInput('who-to-greet');
   const action = core.getInput('action');
-  const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
-
+  const octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+    request: { fetch },
+  });
   const { context } = github;
 
   console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);

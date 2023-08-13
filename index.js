@@ -23,7 +23,7 @@ async function main() {
       const { owner, repo, number } = context.issue;
 
       console.log(owner, repo, number);
-      const data = await octokit.pulls.get({
+      const data = await octokit.rest.pulls.get({
         owner,
         repo,
         pull_number: number, // Note that the parameter name must be "pull_number"

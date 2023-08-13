@@ -1,6 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const octokit = require('@octokit/rest')();
+const fetch = require('node-fetch');
 
 async function main() {
   try {
@@ -9,11 +10,6 @@ async function main() {
     const nameToGreet = core.getInput('who-to-greet');
     const action = core.getInput('action');
     const { context } = github;
-
-    octokit.authenticate({
-      type: 'token',
-      token: process.env.GITHUB_TOKEN,
-    });
 
     console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
     console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);

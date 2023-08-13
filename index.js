@@ -1,6 +1,7 @@
 import core from '@actions/core';
 import github from '@actions/github';
 import axios from 'axios';
+import { Configuration, OpenAIApi } from 'openai';
 
 async function main() {
   try {
@@ -11,6 +12,11 @@ async function main() {
     const { context } = github;
 
     const octokit = github.getOctokit(GITHUB_TOKEN);
+
+    const configuration = new Configuration({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    const openai = new OpenAIApi(configuration);
 
     console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
     console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);
@@ -32,8 +38,20 @@ async function main() {
 
       const { data: diff } = await axios.get(data.diff_url);
 
+      const chatCompletion = await openai.createChatCompletion({
+        model: 'gpt-4',
+        messages: [
+          {
+            role: 'user',
+            content:
+              diff + '\n Please summarize the above code diff for a changelog in under 100 words',
+          },
+        ],
+      });
+
       console.log('---------------------------------------');
       console.log(diff);
+      console.log(chatCompletion.data.choices[0].message);
       console.log('---------------------------------------');
     }
 

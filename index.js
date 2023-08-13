@@ -1,7 +1,7 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const { Octokit } = require('@octokit/rest');
-import fetch from 'node-fetch';
+const fetch = require('node-fetch'); // Use require instead of import
 
 try {
   // `who-to-greet` input defined in action metadata file

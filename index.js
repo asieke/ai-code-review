@@ -12,10 +12,6 @@ try {
   // Get the JSON webhook payload for the event that triggered the workflow
   const payload = JSON.stringify(github.context.payload, undefined, 2);
 
-  const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
-
-  console.log(octokit);
-
   console.log(`The event payload: ${payload}`);
 } catch (error) {
   core.setFailed(error.message);

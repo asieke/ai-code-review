@@ -4,13 +4,10 @@ const { Octokit } = require('@octokit/rest');
 
 async function main() {
   try {
+    const { GITHUB_TOKEN } = process.env;
     // `who-to-greet` input defined in action metadata file
     const nameToGreet = core.getInput('who-to-greet');
     const action = core.getInput('action');
-    const octokit = new Octokit({
-      auth: process.env.GITHUB_TOKEN,
-      request: { fetch },
-    });
     const { context } = github;
 
     console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
@@ -24,7 +21,18 @@ async function main() {
       console.log('Updating the change log');
       const { owner, repo, number } = context.issue;
 
+      const client = new Octokit({ auth: `token ${GITHUB_TOKEN}` });
+
+      const data = await client.pulls.get({
+        repo,
+        pull_number: number,
+      });
+
       console.log(owner, repo, number);
+
+      console.log('---------------------------------------');
+      console.log(data);
+      console.log('---------------------------------------');
     }
 
     const time = new Date().toTimeString();

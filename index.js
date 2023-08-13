@@ -36,10 +36,13 @@ async function main() {
         pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
-      const { data: diff } = await axios.get(data.diff_url);
+      // const { data: diff } = await axios.get(data.diff_url);
+      const { data: diff } = await axios.get(
+        'https://patch-diff.githubusercontent.com/raw/asieke/portfolio-labs/pull/2.diff'
+      );
 
       const chatCompletion = await openai.createChatCompletion({
-        model: 'gpt-4',
+        model: 'gpt-4-32k',
         messages: [
           {
             role: 'user',

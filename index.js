@@ -7,6 +7,10 @@ try {
   const action = core.getInput('action');
   console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
   console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);
+
+  if (action === 'update-push') {
+    console.log('Were going to trick out this push');
+  }
   const time = new Date().toTimeString();
   core.setOutput('time', time);
   // Get the JSON webhook payload for the event that triggered the workflow

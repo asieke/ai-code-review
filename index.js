@@ -9,7 +9,9 @@ async function main() {
     const action = core.getInput('action');
     const { context } = github;
 
-    const octokit = github.getOctokit(GITHUB_TOKEN);
+    // const octokit = github.getOctokit(GITHUB_TOKEN);
+
+    console.log('process.env.GITHUB_TOKEN', process.env.GITHUB_TOKEN);
 
     console.log(`Hello ${nameToGreet}!  This code is gonna be off the hook`);
     console.log(`Hello ${action}!  <<<-- This is what we're doing? >>>`);
@@ -26,7 +28,7 @@ async function main() {
       const data = 'hello there';
 
       console.log('---------------------------------------');
-      console.log(octokit);
+      console.log(data);
       console.log('---------------------------------------');
     }
 

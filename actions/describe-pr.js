@@ -32,6 +32,8 @@ export const describePR = async () => {
     pull_number: number, // Note that the parameter name must be "pull_number"
   });
 
+  console.log('[PULL REQUEST DATA]', data);
+
   const branchSHA = data.head.sha;
 
   const { data: diff } = await axios.get(data.diff_url);

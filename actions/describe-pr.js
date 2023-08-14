@@ -5,6 +5,7 @@ import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
 import { Base64 } from 'js-base64';
 import { systemMessage } from '../lib/system-message.js';
+import { minimizeDiff } from '../lib/minimize-diff.js';
 
 export const describePR = async () => {
   const { context } = github;
@@ -43,49 +44,16 @@ export const describePR = async () => {
     ],
   });
 
-  const addToChangeLog = chatCompletion.data.choices[0].message.content;
+  const addToPR = chatCompletion.data.choices[0].message.content;
+
+  console.log('Adding to PR');
+  console.log(addToPR);
 
   // use oktokit to update the changelog
   const temp = await octokit.rest.pulls.update({
     owner,
     repo,
     pull_number: number,
-    body: addToChangeLog,
+    body: addToPR,
   });
 };
-
-function minimizeDiff(diffContent) {
-  const lines = diffContent.split('\n');
-  const allowedExtensions = /\.(js|ts|jsx|tsx|svelte|css|html)\b/;
-  let result = '';
-  let isDeletingFile = false;
-  let includeFile = false;
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-
-    // Check if the line starts a new file diff
-    if (line.startsWith('diff --git')) {
-      // Check if the file has an allowed extension
-      includeFile = allowedExtensions.test(line);
-      isDeletingFile = false;
-
-      if (includeFile) {
-        result += line + '\n';
-      }
-    } else if (includeFile) {
-      // Check for file deletion header
-      if (line.startsWith('deleted file')) {
-        isDeletingFile = true;
-        result += line + '\n';
-      }
-
-      // If not deleting, include lines until the next file diff
-      if (!isDeletingFile && !lines[i + 1]?.startsWith('diff --git')) {
-        result += line + '\n';
-      }
-    }
-  }
-
-  return result;
-}

@@ -49,8 +49,6 @@ export const describePR = async () => {
     if (file.status === 'deleted') continue;
     if (!ALLOWED_TYPES.includes(fileExtension)) continue;
 
-    const content = Buffer.from(contentData.content, contentData.encoding).toString();
-
     console.log('filename...................', file.filename);
     console.log('extension..................', fileExtension);
     let diff = file.patch;

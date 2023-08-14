@@ -16,8 +16,8 @@ async function main() {
       console.log('[ACTION] - UPDATING PUSH');
     }
 
-    if (action === 'update-change-log') {
-      console.log('[ACTION] - UPDATING CHANGE LOG');
+    if (action === 'update-pr') {
+      console.log('[ACTION] - UPDATING PR');
       await describePR();
 
       //TRY TO UPDATE CHANGELOG

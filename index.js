@@ -2,6 +2,7 @@ import core from '@actions/core';
 import github from '@actions/github';
 import axios from 'axios';
 import { Configuration, OpenAIApi } from 'openai';
+import fs from 'fs';
 
 async function main() {
   try {
@@ -51,8 +52,10 @@ async function main() {
               Each change summary should be no more than 15 words long.
               Only list at MOST 6 relevant changes, it can be fewer if its a smaller PR.
               Please make the emojis fun and relevant to the change.
+              Please include after the date and title, a 20-30 word summary of all changes.
               Your return should be in the following format:
               ## [Date of Change] - [Pull Request Title]
+              [Link to PR in markdown format]
               [20-30 word summary of all changes]
               - [emoji] [summary of change 1]
               - [emoji] [summary of change 2]
@@ -62,15 +65,24 @@ async function main() {
             role: 'user',
             content: `
               PR Title: ${data.title}
+              Link: ${data.html_url}
               Date: ${data.created_at.substring(0, 10)}
               Code: ${minimizeDiff(diff).substring(0, 20000)}`,
           },
         ],
       });
 
-      console.log('---------------------------------------');
-      console.log(chatCompletion.data.choices[0].message.content);
-      console.log('---------------------------------------');
+      const addToChangeLog = chatCompletion.data.choices[0].message.content;
+
+      const changelogPath = 'changelog.md';
+      fs.appendFile(changelogPath, addToChangeLog + '\n', (err) => {
+        if (err) {
+          console.error(`Failed to update changelog: ${err}`);
+          core.setFailed(err.message);
+        } else {
+          console.log(`Updated ${changelogPath} with new changes.`);
+        }
+      });
     }
 
     const time = new Date().toTimeString();

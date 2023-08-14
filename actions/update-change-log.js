@@ -40,12 +40,13 @@ export const updateChangeLog = async () => {
 
   // TRY to update the changelog
   try {
-    const { data } = await octokit.rest.repos.getContent({
+    const { data: changeLogData } = await octokit.rest.repos.getContent({
       owner,
       repo,
       path: 'changelog.md',
+      ref: branchRef,
     });
-    const currentContent = Base64.decode(data.content);
+    const currentContent = Base64.decode(changeLogData.content);
 
     const addToChangeLog = `## ${prData.title} - ${prData.html_url}\nHello there this is a test`;
 
@@ -59,6 +60,7 @@ export const updateChangeLog = async () => {
       message: 'Updating Changelog',
       branch: branchRef,
       content: contentEncoded,
+      sha: changeLogData.sha, // Include the current SHA
       committer: {
         name: `Octokit Bot`,
         email: 'asieke@gmail.com',

@@ -36,10 +36,7 @@ async function main() {
         pull_number: number, // Note that the parameter name must be "pull_number"
       });
 
-      // const { data: diff } = await axios.get(data.diff_url);
-      const { data: diff } = await axios.get(
-        'https://patch-diff.githubusercontent.com/raw/asieke/portfolio-labs/pull/2.diff'
-      );
+      const { data: diff } = await axios.get(data.diff_url);
 
       const chatCompletion = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo-16k',
@@ -47,14 +44,16 @@ async function main() {
           {
             role: 'system',
             content: `
-              You are an expert code summarizer who is making an output for a changelog.
+              You are an expert code summarizer who summarizing a pull request for a changelog.
               Please summarize any code provided.
               Your output should be in markdown format.
               Only provide your summary, no additional text in your response.
               Each change summary should be no more than 15 words long.
-              Only list at MOST 6 relevant changes.
+              Only list at MOST 6 relevant changes, it can be fewer if its a smaller PR.
+              Please make the emojis fun and relevant to the change.
               Your return should be in the following format:
               ## [Date of Change] - [Pull Request Title]
+              [20-30 word summary of all changes]
               - [emoji] [summary of change 1]
               - [emoji] [summary of change 2]
             `,

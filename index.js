@@ -74,40 +74,15 @@ async function main() {
 
       const addToChangeLog = chatCompletion.data.choices[0].message.content;
 
-      console.log('Trying to add this to changelog >>>', addToChangeLog);
-
-      const changelogPath = 'changelog.md';
-      fs.appendFile(changelogPath, addToChangeLog + '\n', (err) => {
-        if (err) {
-          console.error(`Failed to update changelog: ${err}`);
-          core.setFailed(err.message);
-        } else {
-          console.log(`Updated ${changelogPath} with new changes.`);
-        }
+      // Updating the pull request description
+      const temp = await octokit.rest.pulls.update({
+        owner,
+        repo,
+        pull_number: number,
+        body: updatedDescription,
       });
 
-      const branchName = data.head.ref; // Get the branch name from the pull request data
-
-      try {
-        // Configure Git
-        await exec('git config --local user.email "action@github.com"');
-        await exec('git config --local user.name "GitHub Action"');
-
-        // Checkout the branch
-        await exec(`git checkout ${branchName}`);
-
-        // Add changes to git
-        await exec(`git add ${changelogPath}`);
-
-        // Commit changes
-        await exec(`git commit -m "${commitMessage}"`);
-
-        // Push changes
-        await exec(`git push origin ${branchName}`);
-      } catch (err) {
-        console.error(`Failed to commit and push changes: ${err}`);
-        core.setFailed(err.message);
-      }
+      console.log('response from octokit', temp);
     }
 
     const time = new Date().toTimeString();

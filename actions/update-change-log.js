@@ -29,7 +29,7 @@ export const updateChangeLog = async () => {
 
   const { data: diff } = await axios.get(prData.diff_url);
   console.log('Diff URL...................', prData.diff_url);
-  console.log(data);
+  console.log(diff);
 
   // TRY to update the changelog
   // try {

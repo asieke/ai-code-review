@@ -47,6 +47,8 @@ export const updateChangeLog = async () => {
     });
     const currentContent = Base64.decode(data.content);
 
+    const addToChangeLog = `## ${prData.title} - ${prData.html_url}\nHello there this is a test`;
+
     // Update the content
     const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
 

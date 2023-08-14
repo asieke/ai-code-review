@@ -32,6 +32,8 @@ export const describePR = async () => {
     pull_number: number, // Note that the parameter name must be "pull_number"
   });
 
+  console.log('[PULL REQUEST DATA]', data);
+
   const { data: diff } = await axios.get(data.diff_url);
   console.log('Diff URL...................', data.diff_url);
 
@@ -54,6 +56,13 @@ export const describePR = async () => {
     let diff = file.patch;
     console.log('...[Patch]', diff);
     console.log(file);
+
+    // const data = await octokit.rest.repos.getContent({
+    //   owner,
+    //   repo,
+    //   path: file.filename,
+    //   ref: file.sha,
+    // });
   }
 
   // const chatCompletion = await openai.createChatCompletion({

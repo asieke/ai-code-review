@@ -49,21 +49,13 @@ export const describePR = async () => {
     if (file.status === 'deleted') continue;
     if (!ALLOWED_TYPES.includes(fileExtension)) continue;
 
-    // Optionally, you can retrieve the current contents of the file
-    const { data: contentData } = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: file.filename,
-      ref: file.sha, // Reference to the file's commit SHA
-    });
-
     const content = Buffer.from(contentData.content, contentData.encoding).toString();
 
     console.log('filename...................', file.filename);
     console.log('extension..................', fileExtension);
     let diff = file.patch;
     console.log('...[Patch]', diff);
-    console.log('...[Content]', content);
+    console.log(file);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

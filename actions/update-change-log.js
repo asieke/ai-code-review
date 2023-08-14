@@ -6,11 +6,27 @@ import fs from 'fs';
 import { Base64 } from 'js-base64';
 
 export const updateChangeLog = async () => {
+  // Get Github Context and setup octokit client
   const { context } = github;
   const { GITHUB_TOKEN, OPENAI_API_KEY } = process.env;
 
   const octokit = github.getOctokit(GITHUB_TOKEN);
-  const { owner, repo, number } = context.issue;
+  const { owner, repo, number: pull_number } = context.issue;
+
+  // Set up OPENAI Client
+  const configuration = new Configuration({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+  const openai = new OpenAIApi(configuration);
+
+  //get the pull request in question
+  const { data } = await octokit.rest.pulls.get({
+    owner,
+    repo,
+    pull_number,
+  });
+
+  console.log('PULL REQUEST DATA>>>>>>>>>>>>>>>>>>>>>', data);
 
   console.log('CONTEXT>>>>>>>>>>>>>>>>>>>>>', context);
 

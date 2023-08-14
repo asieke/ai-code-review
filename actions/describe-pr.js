@@ -40,7 +40,17 @@ export const describePR = async () => {
     pull_number: number,
   });
 
-  console.log(pullRequestFiles);
+  //iterate through and get AI code review for each file
+  for (const file of pullRequestFiles) {
+    //get the file extension of file.filename
+    const fileExtension = file.filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+    if (file.status === 'deleted') continue;
+
+    console.log('filename...................', file.filename);
+    console.log('extension..................', fileExtension);
+    let diff = file.patch;
+    console.log('...[Patch]', diff);
+  }
 
   // const chatCompletion = await openai.createChatCompletion({
   //   model: 'gpt-3.5-turbo-16k',

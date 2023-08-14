@@ -74,6 +74,8 @@ async function main() {
 
       const addToChangeLog = chatCompletion.data.choices[0].message.content;
 
+      console.log('Trying to add this to changelog >>>' addToChangeLog)
+
       const changelogPath = 'changelog.md';
       fs.appendFile(changelogPath, addToChangeLog + '\n', (err) => {
         if (err) {
@@ -87,10 +89,6 @@ async function main() {
 
     const time = new Date().toTimeString();
     core.setOutput('time', time);
-    // Get the JSON webhook payload for the event that triggered the workflow
-    const payload = JSON.stringify(github.context.payload, undefined, 2);
-
-    console.log(`The event payload: ${payload}`);
   } catch (error) {
     core.setFailed(error.message);
   }

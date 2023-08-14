@@ -57,14 +57,16 @@ export const describePR = async () => {
     console.log('...[Patch]', diff);
     console.log(file);
 
-    const data = await octokit.rest.repos.getContent({
+    const response = await octokit.rest.repos.getContent({
       owner,
       repo,
       path: file.filename,
       ref: branchSHA,
     });
 
-    console.log('...[DATA', data);
+    const fileContent = Buffer.from(response.data.content, 'base64').toString('utf-8');
+
+    console.log('...[DATA', fileContent);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

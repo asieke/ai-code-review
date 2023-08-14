@@ -87,7 +87,7 @@ export const describePR = async () => {
       body: 'Heres a comment, good stuff',
       commit_id: latestCommitSHA,
       path: file.filename,
-      line: 5,
+      line: 1,
     });
 
     console.log('[Comment Response]: ', commentResponse);

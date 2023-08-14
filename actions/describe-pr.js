@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
 import { Base64 } from 'js-base64';
-import { systemMessage } from '../lib/system-message';
+import { systemMessage } from '../lib/system-message.js';
 
 export const describePR = async () => {
   const { context } = github;

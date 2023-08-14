@@ -28,6 +28,8 @@ export const describePR = async () => {
     pull_number: number, // Note that the parameter name must be "pull_number"
   });
 
+  console.log('Getting Diff: ', data.diff_url);
+
   const { data: diff } = await axios.get(data.diff_url);
 
   const chatCompletion = await openai.createChatCompletion({

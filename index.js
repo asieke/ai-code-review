@@ -75,6 +75,8 @@ async function main() {
 
       const addToChangeLog = chatCompletion.data.choices[0].message.content;
 
+      console.log('NEW CHANGE', '\n' + addToChangeLog);
+
       // use oktokit to update the changelog
       const temp = await octokit.rest.pulls.update({
         owner,

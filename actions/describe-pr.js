@@ -7,6 +7,11 @@ import { Base64 } from 'js-base64';
 import { systemMessage } from '../lib/system-message.js';
 import { minimizeDiff } from '../lib/minimize-diff.js';
 
+//create an async sleep function
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 const ALLOWED_TYPES = ['js', 'ts', 'tsx', 'jsx', 'html', 'css', 'svelte'];
 
 export const describePR = async () => {
@@ -38,9 +43,8 @@ export const describePR = async () => {
     pull_number: number,
   });
 
-  console.log('[PULL REQUEST COMMIT DATA]', commitData);
-
   const branchSHA = data.head.sha;
+  const latestCommitSHA = commitData[0].sha;
 
   const { data: diff } = await axios.get(data.diff_url);
   console.log('Diff URL...................', data.diff_url);
@@ -75,6 +79,18 @@ export const describePR = async () => {
     const fileContent = Buffer.from(response.data.content, 'base64').toString('utf-8');
 
     console.log('...[DATA', fileContent);
+    await sleep(5000);
+
+    await octokit.rest.pulls.createReviewComment({
+      owner,
+      repo,
+      pull_number: number,
+      body: 'Heres a comment, good stuff',
+      commit_id: latestCommitSHA,
+      event: 'COMMENT',
+      path: file.filename,
+      line: 5,
+    });
   }
 
   // const chatCompletion = await openai.createChatCompletion({

@@ -8,20 +8,22 @@ import { systemMessage } from '../lib/system-message.js';
 import { minimizeDiff } from '../lib/minimize-diff.js';
 
 export const describePR = async () => {
+  //Configure the variable and get contexts
   const { context } = github;
   const { GITHUB_TOKEN, OPENAI_API_KEY } = process.env;
-
   const octokit = github.getOctokit(GITHUB_TOKEN);
-
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
   const openai = new OpenAIApi(configuration);
 
-  console.log('Updating the change log, (OPEN AI KEY: ' + OPENAI_API_KEY + ')');
+  // Get the PR information
   const { owner, repo, number } = context.issue;
+  console.log('-----------------------------');
+  console.log('owner......................', owner);
+  console.log('repo.......................', repo);
+  console.log('number.....................', number);
 
-  console.log(owner, repo, number);
   const { data } = await octokit.rest.pulls.get({
     owner,
     repo,
@@ -29,24 +31,34 @@ export const describePR = async () => {
   });
 
   console.log('Getting Diff: ', data.diff_url);
-
   const { data: diff } = await axios.get(data.diff_url);
 
-  const chatCompletion = await openai.createChatCompletion({
-    model: 'gpt-3.5-turbo-16k',
-    messages: [
-      systemMessage,
-      {
-        role: 'user',
-        content: `
-              Link: ${data.html_url}
-              Date: ${data.created_at.substring(0, 10)}
-              Code: ${minimizeDiff(diff).substring(0, 20000)}`,
-      },
-    ],
+  //get the files associated with this PR
+  const { data: pullRequestFiles } = await octokit.rest.pulls.listFiles({
+    owner,
+    repo,
+    pull_number: number,
   });
 
-  const addToPR = chatCompletion.data.choices[0].message.content;
+  console.log(pullRequestFiles);
+
+  // const chatCompletion = await openai.createChatCompletion({
+  //   model: 'gpt-3.5-turbo-16k',
+  //   messages: [
+  //     systemMessage,
+  //     {
+  //       role: 'user',
+  //       content: `
+  //             Link: ${data.html_url}
+  //             Date: ${data.created_at.substring(0, 10)}
+  //             Code: ${minimizeDiff(diff).substring(0, 20000)}`,
+  //     },
+  //   ],
+  // });
+
+  // const addToPR = chatCompletion.data.choices[0].message.content;
+
+  const addToPR = '## Placeholder';
 
   console.log('Adding to PR');
   console.log(addToPR);

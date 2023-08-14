@@ -12,39 +12,39 @@ export const updateChangeLog = async () => {
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const { owner, repo, number } = context.issue;
 
-  let addToChangeLog = context.payload.pull_request.body;
+  console.log('CONTEXT>>>>>>>>>>>>>>>>>>>>>', context);
 
   // Get the current content of the changelog file
-  try {
-    const { data } = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: 'changelog.md',
-    });
-    const currentContent = Base64.decode(data.content);
+  // try {
+  //   const { data } = await octokit.rest.repos.getContent({
+  //     owner,
+  //     repo,
+  //     path: 'changelog.md',
+  //   });
+  //   const currentContent = Base64.decode(data.content);
 
-    // Update the content
-    const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
+  //   // Update the content
+  //   const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
 
-    await octokit.rest.repos.createOrUpdateFileContents({
-      owner,
-      repo,
-      path: 'changelog.md',
-      message: 'feat: Updated changelog.md programmatically',
-      content: contentEncoded,
-      sha: data.sha, // Include the current SHA
-      committer: {
-        name: `Octokit Bot`,
-        email: 'asieke@gmail.com',
-      },
-      author: {
-        name: 'Octokit Bot',
-        email: 'asieke@gmail.com',
-      },
-    });
-  } catch (err) {
-    console.error(err);
-  }
+  //   await octokit.rest.repos.createOrUpdateFileContents({
+  //     owner,
+  //     repo,
+  //     path: 'changelog.md',
+  //     message: 'feat: Updated changelog.md programmatically',
+  //     content: contentEncoded,
+  //     sha: data.sha, // Include the current SHA
+  //     committer: {
+  //       name: `Octokit Bot`,
+  //       email: 'asieke@gmail.com',
+  //     },
+  //     author: {
+  //       name: 'Octokit Bot',
+  //       email: 'asieke@gmail.com',
+  //     },
+  //   });
+  // } catch (err) {
+  //   console.error(err);
+  // }
 
-  console.log('context', context);
+  // console.log('context', context);
 };

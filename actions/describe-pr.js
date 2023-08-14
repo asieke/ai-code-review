@@ -81,8 +81,7 @@ export const describePR = async () => {
 
     const fileContent = Buffer.from(response.data.content, 'base64').toString('utf-8');
 
-    console.log('...[DATA', fileContent);
-    await sleep(5000);
+    console.log('...[FILE CONTENTS]', fileContent);
 
     const lineNum = getLineNumber(fileContent, diff);
 

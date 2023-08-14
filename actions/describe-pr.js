@@ -87,9 +87,7 @@ export const describePR = async () => {
       pull_number: number,
       body: 'Heres a comment, good stuff',
       commit_id: latestCommitSHA,
-      event: 'COMMENT',
       path: file.filename,
-      line: 5,
     });
   }
 

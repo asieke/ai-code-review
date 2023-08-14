@@ -41,16 +41,27 @@ async function main() {
         'https://patch-diff.githubusercontent.com/raw/asieke/portfolio-labs/pull/2.diff'
       );
 
-      const prompt = `Please create a changelog entry for the following changes in markdown. In your response, feel free to include emojies to help emphasize the changes`;
-
       const chatCompletion = await openai.createChatCompletion({
         model: 'gpt-3.5-turbo-16k',
         messages: [
           {
+            role: 'system',
+            content: `
+              You are an expert code summarizer who is making an output for a changelog.
+              Please summarize any code provided.
+              Your output should be in markdown format.
+              Only provide your summary, no additional text in your response.
+              Each change summary should be no more than 15 words long.
+              Only list at MOST 6 relevant changes.
+              Your return should be in the following format:
+              ## [Date of Change] - [Pull Request Title]
+              - [emoji] [summary of change 1]
+              - [emoji] [summary of change 2]
+            `,
+          },
+          {
             role: 'user',
             content: `
-              ${prompt}
-              URL: ${data.html_url}
               PR Title: ${data.title}
               Date: ${data.created_at.substring(0, 10)}
               Code: ${minimizeDiff(diff).substring(0, 20000)}`,
@@ -59,7 +70,7 @@ async function main() {
       });
 
       console.log('---------------------------------------');
-      console.log(chatCompletion.data.choices[0].message);
+      console.log(chatCompletion.data.choices[0].message.content);
       console.log('---------------------------------------');
     }
 

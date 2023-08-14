@@ -7,6 +7,8 @@ import { Base64 } from 'js-base64';
 import { systemMessage } from '../lib/system-message.js';
 import { minimizeDiff } from '../lib/minimize-diff.js';
 
+const ALLOWED_TYPES = ['js', 'ts', 'tsx', 'jsx', 'html', 'css', 'svelte'];
+
 export const describePR = async () => {
   //Configure the variable and get contexts
   const { context } = github;
@@ -30,8 +32,8 @@ export const describePR = async () => {
     pull_number: number, // Note that the parameter name must be "pull_number"
   });
 
-  console.log('Getting Diff: ', data.diff_url);
   const { data: diff } = await axios.get(data.diff_url);
+  console.log('Diff URL...................', data.diff_url);
 
   //get the files associated with this PR
   const { data: pullRequestFiles } = await octokit.rest.pulls.listFiles({
@@ -45,11 +47,23 @@ export const describePR = async () => {
     //get the file extension of file.filename
     const fileExtension = file.filename.slice(((file.filename.lastIndexOf('.') - 1) >>> 0) + 2);
     if (file.status === 'deleted') continue;
+    if (!ALLOWED_TYPES.includes(fileExtension)) continue;
+
+    // Optionally, you can retrieve the current contents of the file
+    const { data: contentData } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: file.filename,
+      ref: file.sha, // Reference to the file's commit SHA
+    });
+
+    const content = Buffer.from(contentData.content, contentData.encoding).toString();
 
     console.log('filename...................', file.filename);
     console.log('extension..................', fileExtension);
     let diff = file.patch;
     console.log('...[Patch]', diff);
+    console.log('...[Content]', content);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

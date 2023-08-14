@@ -3,6 +3,7 @@ import github from '@actions/github';
 import axios from 'axios';
 import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
+import { Base64 } from 'js-base64';
 
 async function main() {
   try {
@@ -85,9 +86,32 @@ async function main() {
         body: addToChangeLog,
       });
 
-      console.log(temp);
+      //TRY TO UPDATE CHANGELOG
+      try {
+        const content = fs.readFileSync('./README.md', 'utf-8');
+        const contentEncoded = Base64.encode(content + '\n' + addToChangeLog);
 
-      core.setOutput('changelog', addToChangeLog);
+        const { data } = await octokit.rest.repos.createOrUpdateFileContents({
+          // replace the owner and email with your own details
+          owner,
+          repo,
+          path: 'changelog.md',
+          message: 'feat: Added OUTPUT.md programatically',
+          content: contentEncoded,
+          committer: {
+            name: `Octokit Bot`,
+            email: 'asieke@gmail.com',
+          },
+          author: {
+            name: 'Octokit Bot',
+            email: 'asieke@gmail.com',
+          },
+        });
+
+        console.log(data);
+      } catch (err) {
+        console.error(err);
+      }
     }
   } catch (error) {
     core.setFailed(error.message);

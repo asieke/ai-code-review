@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
 import { Base64 } from 'js-base64';
+import { minimizeDiff } from '../lib/minimize-diff.js';
 
 export const updateChangeLog = async () => {
   // Get Github Context and setup octokit client
@@ -26,54 +27,43 @@ export const updateChangeLog = async () => {
     pull_number,
   });
 
-  //get all the commits associated with this PR
-  const { data: commitData } = await octokit.rest.pulls.listCommits({
-    owner,
-    repo,
-    pull_number,
-  });
-
-  //search for any commits named "Updating Changelog" if there is one, then delete it
-  const changelogCommit = commitData.find(
-    (commit) => commit.commit.message === 'Updating Changelog'
-  );
-
-  console.log('Pull Request DATA>>>>>>>>>>>>>>>>>>>>>', prData);
-  console.log('Commit DATA>>>>>>>>>>>>>>>>>>>>>', commitData);
+  const { data: diff } = await axios.get(prData.diff_url);
+  console.log('Diff URL...................', prData.diff_url);
+  console.log(data);
 
   // TRY to update the changelog
-  try {
-    const { data: changeLogData } = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: 'changelog.md',
-    });
-    const currentContent = Base64.decode(changeLogData.content);
+  // try {
+  //   const { data: changeLogData } = await octokit.rest.repos.getContent({
+  //     owner,
+  //     repo,
+  //     path: 'changelog.md',
+  //   });
+  //   const currentContent = Base64.decode(changeLogData.content);
 
-    const addToChangeLog = `## ${prData.title} - ${prData.html_url}\nHello there this is a test`;
+  //   const addToChangeLog = `## ${prData.title} - ${prData.html_url}\nHello there this is a test`;
 
-    // Update the content
-    const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
+  //   // Update the content
+  //   const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
 
-    await octokit.rest.repos.createOrUpdateFileContents({
-      owner,
-      repo,
-      path: 'changelog.md',
-      message: 'Updating Changelog',
-      content: contentEncoded,
-      sha: changeLogData.sha, // Include the current SHA
-      committer: {
-        name: `Octokit Bot`,
-        email: 'asieke@gmail.com',
-      },
-      author: {
-        name: 'Octokit Bot',
-        email: 'asieke@gmail.com',
-      },
-    });
-  } catch (err) {
-    console.error(err);
-  }
+  //   await octokit.rest.repos.createOrUpdateFileContents({
+  //     owner,
+  //     repo,
+  //     path: 'changelog.md',
+  //     message: 'Updating Changelog',
+  //     content: contentEncoded,
+  //     sha: changeLogData.sha, // Include the current SHA
+  //     committer: {
+  //       name: `Octokit Bot`,
+  //       email: 'asieke@gmail.com',
+  //     },
+  //     author: {
+  //       name: 'Octokit Bot',
+  //       email: 'asieke@gmail.com',
+  //     },
+  //   });
+  // } catch (err) {
+  //   console.error(err);
+  // }
 
   // console.log('context', context);
 };

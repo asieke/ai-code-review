@@ -80,15 +80,21 @@ export const describePR = async () => {
     console.log('...[DATA', fileContent);
     await sleep(5000);
 
-    let commentResponse = await octokit.rest.pulls.createReviewComment({
-      owner,
-      repo,
-      pull_number: number,
-      body: 'Heres a comment, good stuff',
-      commit_id: latestCommitSHA,
-      path: file.filename,
-      line: 1,
-    });
+    const lineNum = getLineNumber(fileContent, diff);
+
+    console.log('...[Line Number]', lineNum);
+
+    if (lineNum) {
+      let commentResponse = await octokit.rest.pulls.createReviewComment({
+        owner,
+        repo,
+        pull_number: number,
+        body: 'Heres a comment, good stuff',
+        commit_id: latestCommitSHA,
+        path: file.filename,
+        line: lineNum,
+      });
+    }
 
     console.log('[Comment Response]: ', commentResponse);
   }
@@ -122,3 +128,33 @@ export const describePR = async () => {
     body: addToPR,
   });
 };
+
+function getLineNumber(fileContent, diff) {
+  // Split the diff into lines
+  const lines = diff.split('\n');
+
+  // Find the line that represents an addition or modification (start with '+')
+  const position = lines.findIndex((line) => line.startsWith('+'));
+
+  // If found, the line number in the original file should be the position minus the number of preceding hunks and metadata lines
+  if (position > -1) {
+    const hunkLine = lines
+      .slice(0, position)
+      .reverse()
+      .find((line) => line.startsWith('@@'));
+    if (hunkLine) {
+      const match = hunkLine.match(/\+([0-9]+),/);
+      if (match) {
+        const startLine = parseInt(match[1], 10);
+        return (
+          startLine +
+          position -
+          lines.slice(0, position).filter((line) => line.startsWith('@@')).length -
+          1
+        );
+      }
+    }
+  }
+
+  return null; // Return null if not found
+}

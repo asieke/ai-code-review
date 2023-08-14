@@ -90,7 +90,7 @@ export const describePR = async () => {
       line: 5,
     });
 
-    console.log(commentResponse);
+    console.log('[Comment Response]: ', commentResponse);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

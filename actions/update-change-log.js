@@ -59,7 +59,6 @@ export const updateChangeLog = async () => {
       message: 'Updating Changelog',
       branch: branchRef,
       content: contentEncoded,
-      sha: data.sha, // Include the current SHA
       committer: {
         name: `Octokit Bot`,
         email: 'asieke@gmail.com',

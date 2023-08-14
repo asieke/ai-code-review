@@ -85,6 +85,29 @@ async function main() {
           console.log(`Updated ${changelogPath} with new changes.`);
         }
       });
+
+      const branchName = data.head.ref; // Get the branch name from the pull request data
+
+      try {
+        // Configure Git
+        await exec('git config --local user.email "action@github.com"');
+        await exec('git config --local user.name "GitHub Action"');
+
+        // Checkout the branch
+        await exec(`git checkout ${branchName}`);
+
+        // Add changes to git
+        await exec(`git add ${changelogPath}`);
+
+        // Commit changes
+        await exec(`git commit -m "${commitMessage}"`);
+
+        // Push changes
+        await exec(`git push origin ${branchName}`);
+      } catch (err) {
+        console.error(`Failed to commit and push changes: ${err}`);
+        core.setFailed(err.message);
+      }
     }
 
     const time = new Date().toTimeString();

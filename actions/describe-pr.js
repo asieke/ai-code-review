@@ -58,6 +58,8 @@ export const describePR = async () => {
     pull_number: number,
   });
 
+  let comments = [];
+
   //iterate through and get AI code review for each file
   for (const file of pullRequestFiles) {
     //get the file extension of file.filename
@@ -87,17 +89,27 @@ export const describePR = async () => {
     console.log('...[Line Number]', lineNum);
 
     if (lineNum) {
-      let commentResponse = await octokit.rest.pulls.createReviewComment({
-        owner,
-        repo,
-        pull_number: number,
-        body: 'Heres a comment, good stuff',
-        commit_id: latestCommitSHA,
-        path: file.filename,
-        line: lineNum,
-      });
-      console.log('[Comment Response]: ', commentResponse);
+      if (lineNum) {
+        comments.push({
+          path: file.filename,
+          line: lineNum,
+          body: 'Heres a comment, good stuff',
+        });
+      }
     }
+  }
+
+  console.log('READY TO ADD COMMENTS: ', comments);
+
+  if (comments.length > 0) {
+    let reviewResponse = await octokit.rest.pulls.createReview({
+      owner,
+      repo,
+      pull_number: number,
+      body: 'General review comment',
+      comments: comments,
+    });
+    console.log('[Review Response]: ', reviewResponse);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

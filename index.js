@@ -51,14 +51,15 @@ async function main() {
               Only provide your summary, no additional text in your response.
               Each change summary should be no more than 15 words long.
               Only list at MOST 6 relevant changes, it can be fewer if its a smaller PR.
-              Please make the emojis fun and relevant to the change.
+              Changes should be bulleted and included in an emoji.
               Please include after the date and title, a 20-30 word summary of all changes.
               Your return should be in the following format:
               ## [Date of Change] - [Pull Request Title]
               [Link to PR in markdown format]
               [20-30 word summary of all changes]
-              - [emoji] [summary of change 1]
-              - [emoji] [summary of change 2]
+              - [emoji] [bullet 1 summary of change 1]
+              - [emoji] [bullet 2 summary of change 2]
+              - etc...
             `,
           },
           {

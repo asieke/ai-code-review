@@ -74,19 +74,8 @@ async function main() {
 
       const addToChangeLog = chatCompletion.data.choices[0].message.content;
 
-      // Updating the pull request description
-      const temp = await octokit.rest.pulls.update({
-        owner,
-        repo,
-        pull_number: number,
-        body: addToChangeLog,
-      });
-
-      console.log('response from octokit', temp);
+      core.setOutput('changelog', addToChangeLog);
     }
-
-    const time = new Date().toTimeString();
-    core.setOutput('time', time);
   } catch (error) {
     core.setFailed(error.message);
   }

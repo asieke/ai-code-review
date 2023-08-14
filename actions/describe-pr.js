@@ -32,7 +32,13 @@ export const describePR = async () => {
     pull_number: number, // Note that the parameter name must be "pull_number"
   });
 
-  console.log('[PULL REQUEST DATA]', data);
+  const { data: commitData } = await octokit.rest.pulls.listCommits({
+    owner,
+    repo,
+    pull_number: number,
+  });
+
+  console.log('[PULL REQUEST COMMIT DATA]', commitData);
 
   const branchSHA = data.head.sha;
 

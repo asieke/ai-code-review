@@ -26,6 +26,8 @@ export const updateChangeLog = async () => {
     pull_number,
   });
 
+  const branchRef = prData.head.ref;
+
   //get all the commits associated with this PR
   const { data: commitData } = await octokit.rest.pulls.listCommits({
     owner,
@@ -36,37 +38,38 @@ export const updateChangeLog = async () => {
   console.log('Pull Request DATA>>>>>>>>>>>>>>>>>>>>>', prData);
   console.log('Commit DATA>>>>>>>>>>>>>>>>>>>>>', commitData);
 
-  // Get the current content of the changelog file
-  // try {
-  //   const { data } = await octokit.rest.repos.getContent({
-  //     owner,
-  //     repo,
-  //     path: 'changelog.md',
-  //   });
-  //   const currentContent = Base64.decode(data.content);
+  // TRY to update the changelog
+  try {
+    const { data } = await octokit.rest.repos.getContent({
+      owner,
+      repo,
+      path: 'changelog.md',
+    });
+    const currentContent = Base64.decode(data.content);
 
-  //   // Update the content
-  //   const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
+    // Update the content
+    const contentEncoded = Base64.encode(currentContent + '\n' + addToChangeLog);
 
-  //   await octokit.rest.repos.createOrUpdateFileContents({
-  //     owner,
-  //     repo,
-  //     path: 'changelog.md',
-  //     message: 'feat: Updated changelog.md programmatically',
-  //     content: contentEncoded,
-  //     sha: data.sha, // Include the current SHA
-  //     committer: {
-  //       name: `Octokit Bot`,
-  //       email: 'asieke@gmail.com',
-  //     },
-  //     author: {
-  //       name: 'Octokit Bot',
-  //       email: 'asieke@gmail.com',
-  //     },
-  //   });
-  // } catch (err) {
-  //   console.error(err);
-  // }
+    await octokit.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo,
+      path: 'changelog.md',
+      message: 'Updating Changelog',
+      branch: branchRef,
+      content: contentEncoded,
+      sha: data.sha, // Include the current SHA
+      committer: {
+        name: `Octokit Bot`,
+        email: 'asieke@gmail.com',
+      },
+      author: {
+        name: 'Octokit Bot',
+        email: 'asieke@gmail.com',
+      },
+    });
+  } catch (err) {
+    console.error(err);
+  }
 
   // console.log('context', context);
 };

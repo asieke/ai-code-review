@@ -79,7 +79,7 @@ async function main() {
         owner,
         repo,
         pull_number: number,
-        body: updatedDescription,
+        body: addToChangeLog,
       });
 
       console.log('response from octokit', temp);

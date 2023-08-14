@@ -5,8 +5,8 @@ import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
 import { Base64 } from 'js-base64';
 
-import { describePR } from './lib/describe-pr.js';
-import { updateChangeLog } from './lib/update-change-log.js';
+import { describePR } from './actions/describe-pr.js';
+import { updateChangeLog } from './actions/update-change-log.js';
 
 async function main() {
   try {
@@ -21,33 +21,6 @@ async function main() {
     if (action === 'update-pr') {
       console.log('[ACTION] - UPDATING PR');
       await describePR();
-
-      //TRY TO UPDATE CHANGELOG
-      // try {
-      //   const content = fs.readFileSync('./README.md', 'utf-8');
-      //   const contentEncoded = Base64.encode(content + '\n' + addToChangeLog);
-
-      //   const { data } = await octokit.rest.repos.createOrUpdateFileContents({
-      //     // replace the owner and email with your own details
-      //     owner,
-      //     repo,
-      //     path: 'changelog.md',
-      //     message: 'feat: Added OUTPUT.md programatically',
-      //     content: contentEncoded,
-      //     committer: {
-      //       name: `Octokit Bot`,
-      //       email: 'asieke@gmail.com',
-      //     },
-      //     author: {
-      //       name: 'Octokit Bot',
-      //       email: 'asieke@gmail.com',
-      //     },
-      //   });
-
-      //   console.log(data);
-      // } catch (err) {
-      //   console.error(err);
-      // }
     }
   } catch (error) {
     core.setFailed(error.message);

@@ -87,7 +87,7 @@ export const describePR = async () => {
     if (lineNum) {
       comments.push({
         path: file.filename,
-        position: lineNum,
+        line: lineNum,
         body: 'Heres a comment, good stuff',
       });
     }

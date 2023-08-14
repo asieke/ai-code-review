@@ -80,7 +80,7 @@ export const describePR = async () => {
     console.log('...[DATA', fileContent);
     await sleep(5000);
 
-    await octokit.rest.pulls.createReviewComment({
+    let commentResponse = await octokit.rest.pulls.createReviewComment({
       owner,
       repo,
       pull_number: number,
@@ -89,6 +89,8 @@ export const describePR = async () => {
       path: file.filename,
       line: 5,
     });
+
+    console.log(commentResponse);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

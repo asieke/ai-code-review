@@ -36,14 +36,6 @@ export const updateChangeLog = async () => {
   console.log('Pull Request DATA>>>>>>>>>>>>>>>>>>>>>', prData);
   console.log('Commit DATA>>>>>>>>>>>>>>>>>>>>>', commitData);
 
-  //create a new commit adding "changelog" to changelog.md
-  let changelog = `## ${prData.title}\n ### Test Input\n How are you doing`;
-  const { data: commit } = await octokit.rest.repos.createOrUpdateFileContents({
-    owner,
-    repo,
-    path: 'changelog.md',
-  });
-
   // Get the current content of the changelog file
   // try {
   //   const { data } = await octokit.rest.repos.getContent({

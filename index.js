@@ -74,7 +74,7 @@ async function main() {
 
       const addToChangeLog = chatCompletion.data.choices[0].message.content;
 
-      console.log('Trying to add this to changelog >>>' addToChangeLog)
+      console.log('Trying to add this to changelog >>>', addToChangeLog);
 
       const changelogPath = 'changelog.md';
       fs.appendFile(changelogPath, addToChangeLog + '\n', (err) => {

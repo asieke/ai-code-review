@@ -94,9 +94,8 @@ export const describePR = async () => {
         path: file.filename,
         line: lineNum,
       });
+      console.log('[Comment Response]: ', commentResponse);
     }
-
-    console.log('[Comment Response]: ', commentResponse);
   }
 
   // const chatCompletion = await openai.createChatCompletion({

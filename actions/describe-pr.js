@@ -67,7 +67,6 @@ export const describePR = async () => {
     console.log('extension..................', fileExtension);
     let diff = file.patch;
     console.log('...[Patch]', diff);
-    console.log(file);
 
     const response = await octokit.rest.repos.getContent({
       owner,
@@ -88,6 +87,7 @@ export const describePR = async () => {
       body: 'Heres a comment, good stuff',
       commit_id: latestCommitSHA,
       path: file.filename,
+      line: 5,
     });
   }
 

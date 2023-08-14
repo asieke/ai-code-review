@@ -20,15 +20,21 @@ export const updateChangeLog = async () => {
   const openai = new OpenAIApi(configuration);
 
   //get the pull request in question
-  const { data } = await octokit.rest.pulls.get({
+  const { prData } = await octokit.rest.pulls.get({
     owner,
     repo,
     pull_number,
   });
 
-  console.log('PULL REQUEST DATA>>>>>>>>>>>>>>>>>>>>>', data);
+  //get all the commits associated with this PR
+  const { data: commitData } = await octokit.rest.pulls.listCommits({
+    owner,
+    repo,
+    pull_number,
+  });
 
-  console.log('CONTEXT>>>>>>>>>>>>>>>>>>>>>', context);
+  console.log('Pull Request DATA>>>>>>>>>>>>>>>>>>>>>', prData);
+  console.log('Commit DATA>>>>>>>>>>>>>>>>>>>>>', commitData);
 
   // Get the current content of the changelog file
   // try {

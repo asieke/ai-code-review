@@ -5,6 +5,7 @@ import { Configuration, OpenAIApi } from 'openai';
 import fs from 'fs';
 import { Base64 } from 'js-base64';
 import { minimizeDiff } from '../lib/minimize-diff.js';
+import { systemMessage } from '../lib/system-message.js';
 
 export const updateChangeLog = async () => {
   // Get Github Context and setup octokit client
@@ -29,7 +30,23 @@ export const updateChangeLog = async () => {
 
   const { data: diff } = await axios.get(prData.diff_url);
   console.log('Diff URL...................', prData.diff_url);
-  console.log(diff);
+
+  const chatCompletion = await openai.createChatCompletion({
+    model: 'gpt-3.5-turbo-16k',
+    messages: [
+      systemMessage,
+      {
+        role: 'user',
+        content: `
+              Link: ${prData.html_url}
+              Date: ${prData.created_at.substring(0, 10)}
+              Code: ${minimizeDiff(diff).substring(0, 20000)}`,
+      },
+    ],
+  });
+
+  console.log('>>>>>>AI RESPONSE>>>>>>>');
+  console.log(chatCompletion.data.messages[0].content);
 
   // TRY to update the changelog
   // try {

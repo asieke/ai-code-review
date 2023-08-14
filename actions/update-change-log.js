@@ -26,14 +26,17 @@ export const updateChangeLog = async () => {
     pull_number,
   });
 
-  const branchRef = prData.head.ref;
-
   //get all the commits associated with this PR
   const { data: commitData } = await octokit.rest.pulls.listCommits({
     owner,
     repo,
     pull_number,
   });
+
+  //search for any commits named "Updating Changelog" if there is one, then delete it
+  const changelogCommit = commitData.find(
+    (commit) => commit.commit.message === 'Updating Changelog'
+  );
 
   console.log('Pull Request DATA>>>>>>>>>>>>>>>>>>>>>', prData);
   console.log('Commit DATA>>>>>>>>>>>>>>>>>>>>>', commitData);
@@ -44,7 +47,6 @@ export const updateChangeLog = async () => {
       owner,
       repo,
       path: 'changelog.md',
-      ref: branchRef,
     });
     const currentContent = Base64.decode(changeLogData.content);
 
@@ -58,7 +60,6 @@ export const updateChangeLog = async () => {
       repo,
       path: 'changelog.md',
       message: 'Updating Changelog',
-      branch: branchRef,
       content: contentEncoded,
       sha: changeLogData.sha, // Include the current SHA
       committer: {

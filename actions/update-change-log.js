@@ -46,7 +46,7 @@ export const updateChangeLog = async () => {
   });
 
   console.log('>>>>>>AI RESPONSE>>>>>>>');
-  console.log(chatCompletion.data.messages[0].content);
+  console.log(chatCompletion);
 
   // TRY to update the changelog
   // try {
